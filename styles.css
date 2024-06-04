@@ -1,0 +1,32 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+canvas {
+  position: fixed;
+  top: 35px;
+  left: 10px;
+  border: 1px solid black;
+}
+
+#scoreDisplay {
+  font-size: 20px;
+  font-weight: bold;
+  position: fixed;
+  top: 5px;
+  left: 10px;
+}
+
+.hidden {
+  display: none;
+}
+
+#scoreBoard {
+  position: fixed;
+  top: 5px;
+  right: 10px;
+}
+
+h2 {
+  margin: 0;
+}
