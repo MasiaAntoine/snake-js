@@ -79,22 +79,40 @@ class EnemySnake {
     return directions[Math.floor(Math.random() * directions.length)];
   }
 
-  move() {
-    if (Math.random() < 0.1 || this.isMovingBackward()) {
-      this.direction = this.randomDirection();
+  move(targetPosition) {
+    // Calculer la direction vers la pomme la plus proche
+    let dx = targetPosition.x - this.body[0].x;
+    let dy = targetPosition.y - this.body[0].y;
+
+    // Choisir la plus grande composante pour se déplacer
+    if (Math.abs(dx) > Math.abs(dy)) {
+      dy = 0;
+    } else {
+      dx = 0;
     }
+
+    // Normaliser la direction pour obtenir une unité de vecteur
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    dx /= distance;
+    dy /= distance;
+
     let newHead = {
-      x: this.body[0].x + this.direction.x,
-      y: this.body[0].y + this.direction.y,
+      x: this.body[0].x + dx,
+      y: this.body[0].y + dy,
     };
+
     this.handleWrapAround(newHead);
+
     if (this.collidesWithBody(newHead)) {
       return false;
     }
+
     this.body.unshift(newHead);
+
     if (!this.grow) {
       this.body.pop();
     }
+
     this.grow = false;
     return true;
   }
@@ -292,7 +310,10 @@ class Game {
       return;
     }
 
-    if (this.enemyRespawnTimeout === null && !this.enemySnake.move()) {
+    if (
+      this.enemyRespawnTimeout === null &&
+      !this.enemySnake.move(this.fruit.position)
+    ) {
       this.startEnemyRespawnTimer();
     }
 
