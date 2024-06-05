@@ -91,15 +91,49 @@ class ScoreBoard {
       this.scores.pop();
     }
     localStorage.setItem("scores", JSON.stringify(this.scores));
-    this.render(); // Mettre à jour l'affichage du tableau des scores
+    this.render();
   }
 
   render() {
     this.scoreListElement.innerHTML = "";
+
     this.scores.forEach((score, index) => {
-      const li = document.createElement("li");
-      li.textContent = `${index + 1}. ${score.username} - ${score.points}`;
-      this.scoreListElement.appendChild(li);
+      const div = document.createElement("div");
+
+      let rankingImage;
+
+      switch (index + 1) {
+        case 1:
+          rankingImage = "top1.png";
+          div.classList.add("top-1");
+          break;
+        case 2:
+          rankingImage = "top2.png";
+          div.classList.add("top-2");
+
+          break;
+        case 3:
+          rankingImage = "top3.png";
+          div.classList.add("top-3");
+
+          break;
+        default:
+          rankingImage = "";
+      }
+
+      if (rankingImage !== "") div.classList.add("flex-top");
+
+      const imageElement = document.createElement("img");
+      imageElement.src = rankingImage;
+      imageElement.alt = `Rank ${index + 1}`;
+
+      let topScore = "";
+      if (index + 1 > 3) topScore = index + 1 + ".";
+
+      div.textContent += `${topScore} ${score.username} - ${score.points}`;
+      this.scoreListElement.appendChild(div);
+
+      if (rankingImage !== "") div.appendChild(imageElement);
     });
   }
 
@@ -126,8 +160,8 @@ class ScoreBoard {
 class Game {
   constructor() {
     this.canvas = document.getElementById("gameCanvas");
-    this.canvas.width = 600; // Largeur du canevas
-    this.canvas.height = 600; // Hauteur du canevas
+    this.canvas.width = 600;
+    this.canvas.height = 600;
     this.ctx = this.canvas.getContext("2d");
     this.snake = new Snake();
     this.fruit = new Fruit();
@@ -137,15 +171,12 @@ class Game {
     this.initControls();
     this.scoreDisplay = document.getElementById("scoreDisplay");
 
-    // Charger l'image de la tête du serpent
     this.headImage = new Image();
     this.headImage.src = "headSnake.png";
 
-    // Charger l'image du corps du serpent
     this.bodyImage = new Image();
     this.bodyImage.src = "bodySnake.png";
 
-    // Charger l'image de la pomme
     this.appleImage = new Image();
     this.appleImage.src = "apple.png";
   }
@@ -192,7 +223,7 @@ class Game {
 
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    // Dessiner la tête du serpent
+
     this.ctx.drawImage(
       this.headImage,
       this.snake.body[0].x * 30,
@@ -200,7 +231,7 @@ class Game {
       30,
       30
     );
-    // Dessiner le corps du serpent
+
     for (let i = 1; i < this.snake.body.length; i++) {
       this.ctx.drawImage(
         this.bodyImage,
@@ -210,7 +241,7 @@ class Game {
         30
       );
     }
-    // Dessiner l'image de la pomme
+
     this.ctx.drawImage(
       this.appleImage,
       this.fruit.position.x * 30,
