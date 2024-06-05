@@ -50,6 +50,69 @@ class Snake {
   }
 }
 
+class EnemySnake {
+  constructor() {
+    this.reset();
+    this.headImage = new Image();
+    this.headImage.src = "resources/images/headSnakeRed.png";
+    this.bodyImage = new Image();
+    this.bodyImage.src = "resources/images/bodySnakeRed.png";
+  }
+
+  reset() {
+    this.body = [{ x: 15, y: 15 }];
+    this.direction = this.randomDirection();
+    this.grow = false;
+  }
+
+  randomDirection() {
+    const directions = [
+      { x: 1, y: 0 },
+      { x: -1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 0, y: -1 },
+    ];
+    return directions[Math.floor(Math.random() * directions.length)];
+  }
+
+  move() {
+    if (Math.random() < 0.1) {
+      this.direction = this.randomDirection();
+    }
+    let newHead = {
+      x: this.body[0].x + this.direction.x,
+      y: this.body[0].y + this.direction.y,
+    };
+    this.handleWrapAround(newHead);
+    if (this.collidesWithBody(newHead)) {
+      return false;
+    }
+    this.body.unshift(newHead);
+    if (!this.grow) {
+      this.body.pop();
+    }
+    this.grow = false;
+    return true;
+  }
+
+  handleWrapAround(head) {
+    if (head.x < 0) head.x = 19;
+    if (head.x > 19) head.x = 0;
+    if (head.y < 0) head.y = 19;
+    if (head.y > 19) head.y = 0;
+  }
+
+  collidesWithBody(position) {
+    return this.body.some(
+      (segment) => segment.x === position.x && segment.y === position.y
+    );
+  }
+
+  eat() {
+    this.grow = true;
+  }
+}
+
 class Fruit {
   constructor() {
     this.position = this.randomPosition();
@@ -62,15 +125,20 @@ class Fruit {
     };
   }
 
-  regenerate(snakeBody) {
+  regenerate(snakeBodies) {
     let newPosition;
     do {
       newPosition = this.randomPosition();
+      console.log("Trying new position:", newPosition);
     } while (
-      snakeBody.some(
-        (segment) => segment.x === newPosition.x && segment.y === newPosition.y
+      snakeBodies.some((body) =>
+        body.some(
+          (segment) =>
+            segment.x === newPosition.x && segment.y === newPosition.y
+        )
       )
     );
+    console.log("New fruit position:", newPosition);
     this.position = newPosition;
   }
 }
@@ -179,6 +247,8 @@ class Game {
 
     this.appleImage = new Image();
     this.appleImage.src = "resources/images/apple.png";
+
+    this.enemySnake = new EnemySnake();
   }
 
   initControls() {
@@ -209,16 +279,61 @@ class Game {
       this.endGame();
       return;
     }
+
+    if (!this.enemySnake.move()) {
+      this.enemySnake.reset();
+    }
+
     if (
       this.snake.body[0].x === this.fruit.position.x &&
       this.snake.body[0].y === this.fruit.position.y
     ) {
+      console.log("Snake eats fruit at position:", this.fruit.position);
       this.snake.eat();
-      this.fruit.regenerate(this.snake.body);
+      this.fruit.regenerate([this.snake.body, this.enemySnake.body]);
       this.score += 10;
       this.updateScoreDisplay();
     }
+
+    if (
+      this.enemySnake.body[0].x === this.fruit.position.x &&
+      this.enemySnake.body[0].y === this.fruit.position.y
+    ) {
+      console.log("Enemy snake eats fruit at position:", this.fruit.position);
+      this.enemySnake.eat();
+      this.fruit.regenerate([this.snake.body, this.enemySnake.body]);
+    }
+
+    if (this.checkCollision()) {
+      this.endGame();
+      return;
+    }
+
     this.draw();
+  }
+
+  checkCollision() {
+    if (
+      this.enemySnake.body.some(
+        (segment) =>
+          segment.x === this.snake.body[0].x &&
+          segment.y === this.snake.body[0].y
+      )
+    ) {
+      return true;
+    }
+
+    if (
+      this.snake.body.some(
+        (segment) =>
+          segment.x === this.enemySnake.body[0].x &&
+          segment.y === this.enemySnake.body[0].y
+      )
+    ) {
+      this.enemySnake.reset();
+    }
+
+    return false;
   }
 
   draw() {
@@ -249,6 +364,24 @@ class Game {
       30,
       30
     );
+
+    this.ctx.drawImage(
+      this.enemySnake.headImage,
+      this.enemySnake.body[0].x * 30,
+      this.enemySnake.body[0].y * 30,
+      30,
+      30
+    );
+
+    for (let i = 1; i < this.enemySnake.body.length; i++) {
+      this.ctx.drawImage(
+        this.enemySnake.bodyImage,
+        this.enemySnake.body[i].x * 30,
+        this.enemySnake.body[i].y * 30,
+        30,
+        30
+      );
+    }
   }
 
   updateScoreDisplay() {
