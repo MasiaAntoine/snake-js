@@ -1,6 +1,7 @@
 class Snake {
   constructor() {
     this.reset();
+    this.moving = false;
   }
 
   reset() {
@@ -27,8 +28,14 @@ class Snake {
   }
 
   setDirection(x, y) {
-    if (x !== -this.direction.x && y !== -this.direction.y) {
-      this.direction = { x, y };
+    if (!this.moving) {
+      if (x !== -this.direction.x && y !== -this.direction.y) {
+        this.direction = { x, y };
+        this.moving = true;
+        setTimeout(() => {
+          this.moving = false;
+        }, 100);
+      }
     }
   }
 
@@ -53,6 +60,7 @@ class Snake {
 class EnemySnake {
   constructor() {
     this.reset();
+    this.moving = false;
     this.headImage = new Image();
     this.headImage.src = "resources/images/headSnakeRed.png";
     this.bodyImage = new Image();
@@ -311,7 +319,7 @@ class Game {
     }
 
     if (
-      this.enemyRespawnTimeout === null &&
+      !this.enemyRespawnTimeout &&
       !this.enemySnake.move(this.fruit.position)
     ) {
       this.startEnemyRespawnTimer();
@@ -344,6 +352,7 @@ class Game {
     }
 
     this.draw();
+    this.snake.moving = false;
   }
 
   checkCollision() {
