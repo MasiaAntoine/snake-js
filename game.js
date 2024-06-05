@@ -80,7 +80,7 @@ class EnemySnake {
   }
 
   move() {
-    if (Math.random() < 0.1) {
+    if (Math.random() < 0.1 || this.isMovingBackward()) {
       this.direction = this.randomDirection();
     }
     let newHead = {
@@ -97,6 +97,13 @@ class EnemySnake {
     }
     this.grow = false;
     return true;
+  }
+
+  isMovingBackward() {
+    return (
+      this.direction.x === -1 * this.body[1].x &&
+      this.direction.y === -1 * this.body[1].y
+    );
   }
 
   handleWrapAround(head) {
