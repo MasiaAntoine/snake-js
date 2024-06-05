@@ -60,7 +60,11 @@ class EnemySnake {
   }
 
   reset() {
-    this.body = [{ x: 15, y: 15 }];
+    const initialLength = Math.floor(Math.random() * 3) + 5;
+    this.body = [];
+    for (let i = 0; i < initialLength; i++) {
+      this.body.push({ x: 15 - i, y: 15 });
+    }
     this.direction = this.randomDirection();
     this.grow = false;
   }
