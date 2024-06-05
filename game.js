@@ -238,6 +238,7 @@ class Game {
     this.interval = null;
     this.initControls();
     this.scoreDisplay = document.getElementById("scoreDisplay");
+    this.enemyRespawnTimeout = null;
 
     this.headImage = new Image();
     this.headImage.src = "resources/images/headSnake.png";
@@ -280,8 +281,8 @@ class Game {
       return;
     }
 
-    if (!this.enemySnake.move()) {
-      this.enemySnake.reset();
+    if (this.enemyRespawnTimeout === null && !this.enemySnake.move()) {
+      this.startEnemyRespawnTimer();
     }
 
     if (
@@ -296,6 +297,7 @@ class Game {
     }
 
     if (
+      this.enemyRespawnTimeout === null &&
       this.enemySnake.body[0].x === this.fruit.position.x &&
       this.enemySnake.body[0].y === this.fruit.position.y
     ) {
@@ -314,6 +316,7 @@ class Game {
 
   checkCollision() {
     if (
+      this.enemyRespawnTimeout === null &&
       this.enemySnake.body.some(
         (segment) =>
           segment.x === this.snake.body[0].x &&
@@ -330,10 +333,17 @@ class Game {
           segment.y === this.enemySnake.body[0].y
       )
     ) {
-      this.enemySnake.reset();
+      this.startEnemyRespawnTimer();
     }
 
     return false;
+  }
+
+  startEnemyRespawnTimer() {
+    this.enemyRespawnTimeout = setTimeout(() => {
+      this.enemySnake.reset();
+      this.enemyRespawnTimeout = null;
+    }, 5000);
   }
 
   draw() {
@@ -365,22 +375,24 @@ class Game {
       30
     );
 
-    this.ctx.drawImage(
-      this.enemySnake.headImage,
-      this.enemySnake.body[0].x * 30,
-      this.enemySnake.body[0].y * 30,
-      30,
-      30
-    );
-
-    for (let i = 1; i < this.enemySnake.body.length; i++) {
+    if (this.enemyRespawnTimeout === null) {
       this.ctx.drawImage(
-        this.enemySnake.bodyImage,
-        this.enemySnake.body[i].x * 30,
-        this.enemySnake.body[i].y * 30,
+        this.enemySnake.headImage,
+        this.enemySnake.body[0].x * 30,
+        this.enemySnake.body[0].y * 30,
         30,
         30
       );
+
+      for (let i = 1; i < this.enemySnake.body.length; i++) {
+        this.ctx.drawImage(
+          this.enemySnake.bodyImage,
+          this.enemySnake.body[i].x * 30,
+          this.enemySnake.body[i].y * 30,
+          30,
+          30
+        );
+      }
     }
   }
 
