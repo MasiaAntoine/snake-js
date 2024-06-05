@@ -104,16 +104,16 @@ class ScoreBoard {
 
       switch (index + 1) {
         case 1:
-          rankingImage = "top1.png";
+          rankingImage = "resources/images/top1.png";
           div.classList.add("top-1");
           break;
         case 2:
-          rankingImage = "top2.png";
+          rankingImage = "resources/images/top2.png";
           div.classList.add("top-2");
 
           break;
         case 3:
-          rankingImage = "top3.png";
+          rankingImage = "resources/images/top3.png";
           div.classList.add("top-3");
 
           break;
@@ -172,13 +172,13 @@ class Game {
     this.scoreDisplay = document.getElementById("scoreDisplay");
 
     this.headImage = new Image();
-    this.headImage.src = "headSnake.png";
+    this.headImage.src = "resources/images/headSnake.png";
 
     this.bodyImage = new Image();
-    this.bodyImage.src = "bodySnake.png";
+    this.bodyImage.src = "resources/images/bodySnake.png";
 
     this.appleImage = new Image();
-    this.appleImage.src = "apple.png";
+    this.appleImage.src = "resources/images/apple.png";
   }
 
   initControls() {
